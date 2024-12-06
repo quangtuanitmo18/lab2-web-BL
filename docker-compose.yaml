@@ -1,0 +1,48 @@
+version: "3.8"
+
+services:
+  # MongoDB Service
+  db:
+    image: mongo:latest
+    container_name: db
+    ports:
+      - "27017:27017"
+    volumes:
+      - D:\laragon\www\nodejs\web-BaoLinh\lab-baolinh\lab2-baolinh\dump:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo_user
+      MONGO_INITDB_ROOT_PASSWORD: mongo_password
+    networks:
+      - app-network
+    restart: always
+
+  # Website Service
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: api
+    ports:
+      - "3000:3000" # Expose only if needed
+    networks:
+      - app-network
+    depends_on:
+      - db
+
+  # Frontend Service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "80:80"
+    networks:
+      - app-network
+    depends_on:
+      - api
+
+# Define shared network and volume
+networks:
+  app-network:
+    driver: bridge
